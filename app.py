@@ -73,7 +73,6 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 client = InferenceClient(
-    provider="nebius",
     api_key=os.environ.get("HF_TOKEN")
 )
 
