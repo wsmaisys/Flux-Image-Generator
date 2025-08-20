@@ -73,7 +73,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 client = InferenceClient(
-    api_key=os.environ.get("HF_TOKEN")
+    token=os.environ.get("HF_TOKEN")
 )
 
 class ImageRequest(BaseModel):
