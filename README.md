@@ -2,7 +2,7 @@
 
 An elegant web application that harnesses the power of FLUX.1-schnell model by Black Forest Labs to generate high-quality images from text descriptions. This project combines FastAPI's robustness with a sleek, responsive UI to provide a seamless image generation experience.
 
-![FLUX Image Generator Demo](static/11.png)
+![FLUX Image Generator Demo](static/33.png)
 
 ## ✨ Features
 
