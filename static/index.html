@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLUX Image Generator</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .side-image {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 250px;
+            height: auto;
+            z-index: 1;
+        }
+
+        .side-image.left {
+            left: 20px;
+        }
+
+        .side-image.right {
+            right: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-left: 300px;
+            margin-right: 300px;
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 1600px) {
+            .container {
+                margin-left: 280px;
+                margin-right: 280px;
+            }
+            .side-image {
+                width: 220px;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .container {
+                margin-left: 250px;
+                margin-right: 250px;
+            }
+            .side-image {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                margin-left: 20px;
+                margin-right: 20px;
+                max-width: none;
+            }
+            .side-image {
+                display: none;
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .model-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button.download-btn {
+            background-color: #28a745;
+        }
+
+        button.download-btn:hover {
+            background-color: #218838;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #output {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        #output img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .token-info {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <img src="/static/11.png" alt="Left side image" class="side-image left">
+    <img src="/static/22.png" alt="Right side image" class="side-image right">
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎨 FLUX Image Generator</h1>
+            <div class="model-info">
+                <strong>Model:</strong> <a href="https://huggingface.co/black-forest-labs/FLUX.1-schnell" target="_blank">FLUX.1-schnell by Black Forest Labs</a><br>
+                <strong>Description:</strong> An efficient image generation model capable of creating high-quality images from text descriptions.<br>
+                <strong>Capabilities:</strong> Creates detailed images up to 2048x2048 resolution with excellent composition and artistic style.
+            </div>
+        </div>
+
+        <form id="generateForm">
+            <div class="form-group">
+                <label for="hfToken">Hugging Face Token (Optional):</label>
+                <input type="text" id="hfToken" name="hfToken" placeholder="Enter your HF token or leave blank to use default">
+                <div class="token-info">
+                    If you have your own Hugging Face token, enter it here. Otherwise, the default token will be used.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="prompt">Prompt:</label>
+                <textarea id="prompt" name="prompt" required 
+                    placeholder="Describe the image you want to generate in detail. For example:&#10;A futuristic city skyline at sunset, with flying cars and holographic billboards, cyberpunk style, dramatic lighting"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="width">Width:</label>
+                <input type="number" id="width" name="width" value="1024" min="64" max="2048" required>
+            </div>
+
+            <div class="form-group">
+                <label for="height">Height:</label>
+                <input type="number" id="height" name="height" value="768" min="64" max="2048" required>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">Generate Image</button>
+                <button type="button" id="downloadBtn" class="download-btn" style="display: none;">Download PNG</button>
+            </div>
+        </form>
+
+        <div class="loading" id="loading">🎨 Creating your masterpiece...</div>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        document.getElementById('generateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('prompt').value;
+            const width = document.getElementById('width').value;
+            const height = document.getElementById('height').value;
+            const loading = document.getElementById('loading');
+            const output = document.getElementById('output');
+
+            loading.style.display = 'block';
+            output.innerHTML = '';
+
+            try {
+                const response = await fetch('/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        prompt, 
+                        width: parseInt(width), 
+                        height: parseInt(height) 
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate image');
+                }
+
+                const data = await response.json();
+                const img = document.createElement('img');
+                img.src = `data:image/png;base64,${data.image_base64}`;
+                output.appendChild(img);
+                
+                // Show and setup download button
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.style.display = 'block';
+                downloadBtn.onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = img.src;
+                    link.download = 'generated-image.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+            } catch (error) {
+                output.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            } finally {
+                loading.style.display = 'none';
+            }
+
+            // Hide download button when starting a new generation
+            document.getElementById('downloadBtn').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
