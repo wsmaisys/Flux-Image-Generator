@@ -198,6 +198,28 @@
     <img src="/static/22.png" alt="Right side image" class="side-image right">
     
     <div class="container">
+        <!-- Token Notice -->
+        <div style="margin-bottom: 20px;">
+            <marquee style="background-color: #ffd700; color: #000; padding: 10px; border-radius: 8px; font-weight: bold;">
+                ⚠️ If the app is not working, please use your personal HF_TOKEN. You can generate a free token at 
+                <a href="https://huggingface.co/settings/tokens" target="_blank" style="color: #0056b3;">www.huggingface.com</a>
+            </marquee>
+        </div>
+
+        <!-- Image Save Warning -->
+        <div class="blink-warning" style="margin-bottom: 20px; background-color: #ff6b6b; color: white; padding: 15px; border-radius: 8px; animation: blink 2s linear infinite;">
+            <strong>⚠️ Important:</strong> We do not store any generated images. Please download your images before leaving the website. 
+            Due to random seed generation, the same image cannot be recreated in future sessions.
+        </div>
+
+        <style>
+            @keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
+        </style>
+
         <div class="header">
             <h1>🎨 FLUX Image Generator</h1>
             <div class="model-info">
