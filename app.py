@@ -81,6 +81,7 @@ class ImageRequest(BaseModel):
     width: int = 1024
     height: int = 768
     return_format: Optional[str] = "base64"  # Can be "base64" or "raw"
+    hf_token: Optional[str] = None
 
 @app.get("/")
 async def read_root(request: Request):
@@ -102,7 +103,10 @@ async def health_check():
 @app.post("/generate-image")
 async def generate_image(request: ImageRequest, http_request: Request):
     try:
-        image = client.text_to_image(
+        # Create a new client instance if user provided a token
+        current_client = InferenceClient(token=request.hf_token) if request.hf_token else client
+        
+        image = current_client.text_to_image(
             request.prompt,
             model="black-forest-labs/FLUX.1-schnell",
             width=request.width,

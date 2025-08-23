@@ -256,6 +256,7 @@
             output.innerHTML = '';
 
             try {
+                const hfToken = document.getElementById('hfToken').value.trim();
                 const response = await fetch('/generate-image', {
                     method: 'POST',
                     headers: {
@@ -264,7 +265,8 @@
                     body: JSON.stringify({ 
                         prompt, 
                         width: parseInt(width), 
-                        height: parseInt(height) 
+                        height: parseInt(height),
+                        hf_token: hfToken || null
                     }),
                 });
 
