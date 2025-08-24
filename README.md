@@ -69,7 +69,9 @@ Access the live demo at: https://flux-image-generator-bdcdcphnhmbhg6et.centralin
    uvicorn app:app --reload
    ```
 
-   Visit `http://localhost:8000` in your browser.
+   Visit `http://localhost:8000` in your browser for local development.
+
+   Or visit the deployed version at: https://flux-image-generator-bdcdcphnhmbhg6et.centralindia-01.azurewebsites.net/
 
 ### 🐳 Docker Deployment
 
@@ -86,13 +88,14 @@ Access the live demo at: https://flux-image-generator-bdcdcphnhmbhg6et.centralin
 ## 🔧 API Usage
 
 ### Web Interface
-Open `http://localhost:8000` in your browser to use the web interface.
+Access the deployed interface at https://flux-image-generator-bdcdcphnhmbhg6et.centralindia-01.azurewebsites.net/ 
+or use `http://localhost:8000` for local development.
 
 ### REST API
 
 #### Generate Image
 ```bash
-curl -X POST "http://localhost:8000/generate-image" \
+curl -X POST "https://flux-image-generator-bdcdcphnhmbhg6et.centralindia-01.azurewebsites.net/generate-image" \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "a beautiful sunset over mountains",

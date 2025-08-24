@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLUX Image Generator - API Documentation</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-links a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .endpoint {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .endpoint h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .get {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .post {
+            background-color: #007bff;
+            color: white;
+        }
+
+        pre {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 FLUX Image Generator API Documentation</h1>
+            <p>Access the power of FLUX.1-schnell model through our RESTful API</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">← Back to Generator</a>
+        </div>
+
+        <div class="section">
+            <h2>Introduction</h2>
+            <p>
+                The FLUX Image Generator API allows you to generate images using the FLUX.1-schnell model programmatically.
+                The API supports both base64 and raw image responses, making it suitable for various use cases.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Authentication</h2>
+            <p>
+                You can optionally provide your Hugging Face token in the request body. If not provided, the default token will be used.
+            </p>
+            <div class="note">
+                <strong>Note:</strong> For reliable service, we recommend using your own Hugging Face token.
+                You can get one from <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co</a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Endpoints</h2>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> /health</h3>
+                <p>Check if the API is operational.</p>
+                
+                <h4>Example Request:</h4>
+                <pre><code>curl https://flux-image-generator-bdcdcphnhmbhg6et.centralindia-01.azurewebsites.net/health</code></pre>
+                
+                <h4>Example Response:</h4>
+                <pre><code>{
+    "status": "healthy",
+    "version": "1.0.0"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> /generate-image</h3>
+                <p>Generate an image based on a text prompt.</p>
+
+                <h4>Request Parameters:</h4>
+                <table>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>prompt</td>
+                        <td>string</td>
+                        <td>Yes</td>
+                        <td>The text description of the image you want to generate</td>
+                    </tr>
+                    <tr>
+                        <td>width</td>
+                        <td>integer</td>
+                        <td>No</td>
+                        <td>Image width in pixels (default: 1024, max: 2048)</td>
+                    </tr>
+                    <tr>
+                        <td>height</td>
+                        <td>integer</td>
+                        <td>No</td>
+                        <td>Image height in pixels (default: 768, max: 2048)</td>
+                    </tr>
+                    <tr>
+                        <td>return_format</td>
+                        <td>string</td>
+                        <td>No</td>
+                        <td>"base64" (default) or "raw"</td>
+                    </tr>
+                    <tr>
+                        <td>hf_token</td>
+                        <td>string</td>
+                        <td>No</td>
+                        <td>Your Hugging Face token</td>
+                    </tr>
+                </table>
+
+                <h4>Example Request (base64 response):</h4>
+                <pre><code>curl -X POST "https://flux-image-generator-bdcdcphnhmbhg6et.centralindia-01.azurewebsites.net/generate-image" \
+    -H "Content-Type: application/json" \
+    -d '{
+        "prompt": "a beautiful sunset",
+        "width": 1024,
+        "height": 768,
+        "return_format": "base64",
+        "hf_token": "your_token_here"
+    }'</code></pre>
+
+                <h4>Example Request (raw image response):</h4>
+                <pre><code>curl -X POST "https://flux-image-generator-bdcdcphnhmbhg6et.centralindia-01.azurewebsites.net/generate-image" \
+    -H "Content-Type: application/json" \
+    -d '{
+        "prompt": "a beautiful sunset",
+        "width": 1024,
+        "height": 768,
+        "return_format": "raw"
+    }' \
+    --output image.png</code></pre>
+
+                <h4>Response Formats:</h4>
+                <ul>
+                    <li><strong>base64:</strong> Returns JSON with base64-encoded image data</li>
+                    <li><strong>raw:</strong> Returns the raw PNG image data</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Error Handling</h2>
+            <p>The API uses standard HTTP status codes:</p>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>200</td>
+                    <td>Success</td>
+                </tr>
+                <tr>
+                    <td>400</td>
+                    <td>Bad Request - Invalid parameters</td>
+                </tr>
+                <tr>
+                    <td>500</td>
+                    <td>Internal Server Error</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Rate Limiting</h2>
+            <p>
+                The API is subject to Hugging Face's rate limits. Using your own token is recommended
+                for consistent access to the service.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
