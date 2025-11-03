@@ -72,9 +72,13 @@ app = FastAPI()
 # Mount the static directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-client = InferenceClient(
-    token=os.environ.get("HF_TOKEN")
-)
+from huggingface_hub import InferenceClient
+
+# Set the API endpoint environment variable
+os.environ["HF_API_ENDPOINT"] = "https://router.huggingface.co/hf-inference/"
+
+# Initialize the client
+client = InferenceClient(token=os.environ.get("HF_TOKEN"))
 
 class ImageRequest(BaseModel):
     prompt: str
@@ -106,12 +110,37 @@ async def generate_image(request: ImageRequest, http_request: Request):
         # Create a new client instance if user provided a token
         current_client = InferenceClient(token=request.hf_token) if request.hf_token else client
         
-        image = current_client.text_to_image(
-            request.prompt,
-            model="black-forest-labs/FLUX.1-schnell",
-            width=request.width,
-            height=request.height
-        )
+        print(f"Starting image generation with prompt: {request.prompt}")
+        try:
+            image = current_client.text_to_image(
+                request.prompt,
+                model="black-forest-labs/FLUX.1-schnell",
+                width=request.width,
+                height=request.height
+            )
+        except Exception as gen_error:
+            print(f"Image generation error: {str(gen_error)}")
+            error_message = str(gen_error)
+            if "token" in error_message.lower():
+                raise HTTPException(
+                    status_code=401,
+                    detail="Authentication failed with Hugging Face API. Please check your token."
+                )
+            elif "timeout" in error_message.lower():
+                raise HTTPException(
+                    status_code=504,
+                    detail="The request timed out. Please try again with a simpler prompt or smaller image dimensions."
+                )
+            elif "memory" in error_message.lower():
+                raise HTTPException(
+                    status_code=503,
+                    detail="The server ran out of memory. Please try with smaller image dimensions."
+                )
+            else:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to generate image: {error_message}"
+                )
         # Convert PIL Image to bytes
         import io
         img_byte_array = io.BytesIO()
