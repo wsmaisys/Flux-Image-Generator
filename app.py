@@ -61,8 +61,14 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from huggingface_hub import InferenceClient
 from pydantic import BaseModel
 from dotenv import load_dotenv
-import os, base64
+import os
+import base64
+import io
+import sys
+import logging
 from typing import Optional
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Load environment variables from .env file
 load_dotenv()
@@ -72,13 +78,14 @@ app = FastAPI()
 # Mount the static directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-from huggingface_hub import InferenceClient
+# Set the API endpoint environment variable for the new Inference Providers API
+os.environ["HF_ENDPOINT"] = "https://router.huggingface.co"
 
-# Set the API endpoint environment variable
-os.environ["HF_API_ENDPOINT"] = "https://router.huggingface.co/hf-inference/"
-
-# Initialize the client
-client = InferenceClient(token=os.environ.get("HF_TOKEN"))
+# Initialize the client with the new endpoint
+client = InferenceClient(
+    token=os.environ.get("HF_TOKEN"),
+    base_url="https://router.huggingface.co/hf-inference"
+)
 
 class ImageRequest(BaseModel):
     prompt: str
@@ -107,17 +114,54 @@ async def health_check():
 @app.post("/generate-image")
 async def generate_image(request: ImageRequest, http_request: Request):
     try:
-        # Create a new client instance if user provided a token
-        current_client = InferenceClient(token=request.hf_token) if request.hf_token else client
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
         
-        print(f"Starting image generation with prompt: {request.prompt}")
+        # Log the token being used (first 8 chars only for security)
+        token_preview = (request.hf_token or os.environ.get("HF_TOKEN") or "")[:8] + "..."
+        logger.info(f"Using HF token starting with: {token_preview}")
+        
+        # Create a new client instance if user provided a token
+        current_client = InferenceClient(
+            token=request.hf_token,
+            base_url="https://router.huggingface.co/hf-inference"
+        ) if request.hf_token else client
+        
+        logger.info(f"Starting image generation with prompt: {request.prompt}")
+        logger.info(f"Image dimensions: {request.width}x{request.height}")
+        
         try:
-            image = current_client.text_to_image(
-                request.prompt,
-                model="black-forest-labs/FLUX.1-schnell",
-                width=request.width,
-                height=request.height
-            )
+            logger.info("Calling Hugging Face API...")
+            # Try with original dimensions first, with a shorter timeout
+            try:
+                # Use text_to_image method
+                image = current_client.text_to_image(
+                    prompt=request.prompt,
+                    model="black-forest-labs/FLUX.1-schnell",
+                    width=request.width,
+                    height=request.height,
+                )
+                logger.info("Image generation successful at original dimensions")
+            except Exception as dim_error:
+                if "memory" in str(dim_error).lower():
+                    # Try with reduced dimensions
+                    logger.info("Retrying with reduced dimensions due to memory constraints")
+                    scale_factor = 0.5  # Reduce dimensions by 50%
+                    reduced_width = int(request.width * scale_factor)
+                    reduced_height = int(request.height * scale_factor)
+                    
+                    image = current_client.text_to_image(
+                        prompt=request.prompt,
+                        model="black-forest-labs/FLUX.1-schnell",
+                        width=reduced_width,
+                        height=reduced_height,
+                    )
+                    
+                    # Upscale the image back to requested dimensions
+                    image = image.resize((request.width, request.height), Image.Resampling.LANCZOS)
+                    logger.info("Image generation successful with reduced dimensions and upscaling")
+                else:
+                    raise
         except Exception as gen_error:
             print(f"Image generation error: {str(gen_error)}")
             error_message = str(gen_error)
@@ -142,7 +186,6 @@ async def generate_image(request: ImageRequest, http_request: Request):
                     detail=f"Failed to generate image: {error_message}"
                 )
         # Convert PIL Image to bytes
-        import io
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format='PNG')
         img_byte_array = img_byte_array.getvalue()
