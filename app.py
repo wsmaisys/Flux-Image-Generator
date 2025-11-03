@@ -128,4 +128,12 @@ async def generate_image(request: ImageRequest, http_request: Request):
             )
         return {"image_base64": base64.b64encode(img_byte_array).decode("utf-8")}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        error_details = {
+            "error": str(e),
+            "traceback": traceback.format_exc(),
+            "prompt": request.prompt,
+            "dimensions": f"{request.width}x{request.height}"
+        }
+        print(f"Image generation error: {error_details}")  # This will show in the Azure logs
+        raise HTTPException(status_code=500, detail=error_details)
