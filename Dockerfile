@@ -39,7 +39,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     TRANSFORMERS_OFFLINE=0 \
     HF_HUB_DISABLE_TELEMETRY=1 \
     # Performance
-    MALLOC_TRIM_THRESHOLD_=100000
+    MALLOC_TRIM_THRESHOLD_=100000 \
+    # Azure specific settings
+    PORT=8000 \
+    WEBSITE_HOSTNAME=0.0.0.0
 
 WORKDIR /app
 
@@ -91,12 +94,13 @@ LABEL maintainer="your-email@example.com" \
       security.no-root="true" \
       privacy.token-caching="disabled"
 
-# Start application with optimized settings
-CMD ["uvicorn", "app:app", \
-     "--host", "0.0.0.0", \
-     "--port", "8000", \
-     "--workers", "1", \
-     "--log-level", "info", \
-     "--no-access-log", \
-     "--proxy-headers", \
-     "--forwarded-allow-ips", "*"]
+# Start application with optimized settings for Azure
+CMD uvicorn app:app \
+    --host ${WEBSITE_HOSTNAME} \
+    --port ${PORT} \
+    --workers 1 \
+    --log-level info \
+    --no-access-log \
+    --proxy-headers \
+    --forwarded-allow-ips "*" \
+    --timeout-keep-alive 75
