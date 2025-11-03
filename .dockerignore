@@ -1,11 +1,9 @@
 # Python
 __pycache__/
-.vscode
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -17,57 +15,77 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual Environment
+# Virtual environments
 venv/
-.env
-.venv
+env/
 ENV/
+env.bak/
+venv.bak/
 
-# IDE specific files
-.idea/
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
 .vscode/
+.idea/
 *.swp
 *.swo
-*.swn
+*~
 .DS_Store
 
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+docs/
+
 # Docker
-Dockerfile
+Dockerfile*
+docker-compose*.yml
 .dockerignore
 
-# Git
-.git
-.gitignore
-
 # Testing
+tests/
+test/
+*.test.py
+pytest.ini
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
 
-# Documentation
-docs/
-*.md
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
 
-# Local development
+# Logs
 *.log
-.env.local
-.env.development
-.env.test
-.env.production
+logs/
 
-# Generated files
-generated_images/
-*.png
-*.jpg
-*.jpeg
-*.gif
+# Temporary files
+tmp/
+temp/
+*.tmp
 
-# Except static images
-!static/*.png
-!static/*.jpg
-!static/*.jpeg
-!static/*.gif
+# User data (PRIVACY)
+uploads/
+output/
+generated/
+cache/
